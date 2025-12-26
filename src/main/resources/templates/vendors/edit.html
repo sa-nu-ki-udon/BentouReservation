@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>業者編集</title>
+</head>
+<body>
+    <main layout:fragment="content">
+        <div class="container">
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h2>
+                        <i class="bi bi-pencil-square me-2"></i>業者編集
+                    </h2>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-body">
+                            <form th:action="@{/vendors/{id}(id=${vendor.id})}" th:object="${vendorUpdateRequest}" method="post">
+                                <div class="mb-3">
+                                    <label class="form-label text-muted">業者ID</label>
+                                    <div class="form-control-plaintext" th:text="${vendor.id}"></div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label form-required">業者名</label>
+                                    <input type="text" class="form-control" th:field="*{name}">
+                                    <div class="field-error" th:if="${#fields.hasErrors('name')}"
+                                         th:errors="*{name}"></div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">連絡先情報</label>
+                                    <textarea class="form-control" th:field="*{contactInfo}" rows="3"></textarea>
+                                    <small class="form-text text-muted">
+                                        電話番号、FAX、メールアドレスなど連絡先情報を入力してください。
+                                    </small>
+                                    <div class="field-error" th:if="${#fields.hasErrors('contactInfo')}"
+                                         th:errors="*{contactInfo}"></div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <button type="submit" class="btn btn-primary me-2">
+                                        <i class="bi bi-check-circle"></i> 更新
+                                    </button>
+                                    <a th:href="@{/vendors/{id}(id=${vendor.id})}" class="btn btn-outline-secondary">
+                                        <i class="bi bi-x-circle"></i> キャンセル
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <th:block layout:fragment="scripts">
+        <script th:src="@{/js/common.js}"></script>
+    </th:block>
+</body>
+</html>

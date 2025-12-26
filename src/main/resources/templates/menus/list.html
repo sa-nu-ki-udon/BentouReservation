@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>メニュー一覧</title>
+</head>
+<body>
+    <main layout:fragment="content">
+        <div class="container">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h2>
+                        <i class="bi bi-list-ul me-2"></i>メニュー一覧
+                    </h2>
+                </div>
+                <div class="col-md-6 text-end">
+                    <a th:href="@{/menus/new}" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i> 新規登録
+                    </a>
+                </div>
+            </div>
+
+            <!-- 検索フォーム -->
+            <div class="row mb-3">
+                <div class="col-md-12">
+                    <form th:action="@{/menus}" method="get" class="row g-2">
+                        <div class="col-md-4">
+                            <select name="vendorId" class="form-select">
+                                <option value="">-- 業者で絞り込み --</option>
+                                <option th:each="vendor : ${vendors}" th:value="${vendor.id}" th:text="${vendor.name}"
+                                        th:selected="${vendor.id == selectedVendorId}"></option>
+                            </select>
+                        </div>
+                        <div class="col-md-5">
+                            <input type="text" name="name" class="form-control" placeholder="メニュー名で検索" th:value="${searchName}">
+                        </div>
+                        <div class="col-md-3">
+                            <button type="submit" class="btn btn-outline-secondary w-100">
+                                <i class="bi bi-search"></i> 検索
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- メニュー一覧テーブル -->
+            <div class="card">
+                <div class="card-body">
+                    <div th:if="${menus.empty}" class="alert alert-info">
+                        メニューが登録されていません。
+                    </div>
+
+                    <div th:unless="${menus.empty}" class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr class="table-secondary">
+                                    <th>ID</th>
+                                    <th>メニュー名</th>
+                                    <th>業者</th>
+                                    <th class="text-end">価格</th>
+                                    <th>適用開始</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="menu : ${menus}">
+                                    <td th:text="${menu.id}"></td>
+                                    <td>
+                                        <a th:href="@{/menus/{id}(id=${menu.id})}" th:text="${menu.name}"></a>
+                                    </td>
+                                    <td th:text="${menu.vendor.name}"></td>
+                                    <td class="text-end fw-bold" th:text="${'¥' + #numbers.formatDecimal(menu.price, 0, 'COMMA', 0, 'POINT')}"></td>
+                                    <td th:text="${#temporals.format(menu.effectiveFrom, 'yyyy/MM/dd')}"></td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a th:href="@{/menus/{id}(id=${menu.id})}" class="btn btn-outline-primary">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            <a th:href="@{/menus/{id}/edit(id=${menu.id})}" class="btn btn-outline-secondary">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            <a th:href="@{/menus/{id}/change-price(id=${menu.id})}" class="btn btn-outline-warning">
+                                                <i class="bi bi-cash-coin"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <th:block layout:fragment="scripts">
+        <script th:src="@{/js/common.js}"></script>
+    </th:block>
+</body>
+</html>

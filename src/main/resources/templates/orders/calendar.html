@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>注文カレンダー</title>
+</head>
+<body>
+    <main layout:fragment="content">
+        <div class="container">
+            <!-- ページヘッダー -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h2>
+                        <i class="bi bi-calendar-event me-2"></i>注文カレンダー
+                    </h2>
+                </div>
+                <div class="col-md-6 text-end">
+                    <a th:href="@{/orders}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> 社員選択に戻る
+                    </a>
+                </div>
+            </div>
+
+            <!-- 社員情報バー -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div>
+                                <strong>選択中の社員:</strong>
+                                <span th:text="${employee.name}"></span>
+                                <span class="badge bg-secondary" th:text="${employee.department ?: '部署未設定'}"></span>
+                            </div>
+                            <div class="text-muted small mt-1">
+                                社員番号: <span th:text="${employee.employeeNumber}"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <div class="dropdown">
+                                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                    <i class="bi bi-person-check"></i> 他の社員に変更
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li th:each="emp : ${employees}">
+                                        <a th:href="@{/orders(employeeId=${emp.id})}" class="dropdown-item" th:text="${emp.name}"></a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 月次ナビゲーション -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <a th:href="@{/orders(employeeId=${employee.id}, year=${previousMonth.year}, month=${previousMonth.monthValue})}" class="btn btn-outline-secondary">
+                    <i class="bi bi-chevron-left"></i> 前月
+                </a>
+                <h3 class="mb-0">
+                    <span th:text="${currentYear}"></span>年
+                    <span th:text="${currentMonth}"></span>月
+                </h3>
+                <a th:href="@{/orders(employeeId=${employee.id}, year=${nextMonth.year}, month=${nextMonth.monthValue})}" class="btn btn-outline-secondary">
+                    次月 <i class="bi bi-chevron-right"></i>
+                </a>
+            </div>
+
+            <!-- カレンダーグリッド -->
+            <div class="card">
+                <div class="card-body">
+                    <div th:if="${calendarSettings.empty}" class="alert alert-info">
+                        この月のカレンダー設定がされていません。
+                    </div>
+
+                    <div th:unless="${calendarSettings.empty}" class="table-responsive">
+                        <table class="table table-bordered calendar-table">
+                            <thead>
+                                <tr class="table-secondary">
+                                    <th class="text-center">日付</th>
+                                    <th class="text-center">曜日</th>
+                                    <th>メニューセット</th>
+                                    <th class="text-center">状態</th>
+                                    <th class="text-center">注文</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="setting : ${calendarSettings}">
+                                    <td class="text-center fw-bold" th:text="${#temporals.format(setting.date, 'dd')}"></td>
+                                    <td class="text-center">
+                                        <span th:text="${#temporals.format(setting.date, 'E')}"></span>
+                                    </td>
+                                    <td>
+                                        <div th:if="${setting.isHoliday}" class="text-danger">
+                                            <i class="bi bi-calendar-x"></i> 休日
+                                            <div class="small text-muted" th:if="${setting.memo}" th:text="${setting.memo}"></div>
+                                        </div>
+                                        <div th:unless="${setting.isHoliday}">
+                                            <div th:if="${setting.menuSet}" th:text="${setting.menuSet.name}"></div>
+                                            <div th:unless="${setting.menuSet}" class="text-muted">
+                                                <i class="bi bi-dash"></i> 未設定
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <div th:if="${setting.isHoliday}" class="badge bg-danger">注文不可</div>
+                                        <div th:unless="${setting.isHoliday}">
+                                            <div th:if="${setting.menuSet}" class="badge bg-success">注文可能</div>
+                                            <div th:unless="${setting.menuSet}" class="badge bg-secondary">設定なし</div>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <div th:if="${setting.isHoliday}" class="text-muted">-</div>
+                                        <div th:unless="${setting.isHoliday}">
+                                            <div th:if="${setting.menuSet}">
+                                                <th:block th:each="order : ${orders}" th:if="${order.orderDate == setting.date}">
+                                                    <div class="btn-group btn-group-sm" role="group">
+                                                        <a th:href="@{/orders/edit(employeeId=${employee.id}, date=${setting.date})}" class="btn btn-outline-warning" title="注文を変更">
+                                                            <i class="bi bi-pencil"></i> 変更
+                                                        </a>
+                                                        <form th:action="@{/orders/delete}" method="post" style="display:inline;" onsubmit="return confirm('注文を削除してもよろしいですか？');">
+                                                            <input type="hidden" name="employeeId" th:value="${employee.id}">
+                                                            <input type="hidden" name="date" th:value="${setting.date}">
+                                                            <button type="submit" class="btn btn-outline-danger" title="注文を削除">
+                                                                <i class="bi bi-trash"></i> 削除
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                </th:block>
+                                                <th:block th:if="!${orders.?[orderDate == setting.date].isEmpty()}">
+                                                    <span th:each="order : ${orders}" th:if="${order.orderDate == setting.date}" class="badge bg-info" th:text="${order.menu.name}"></span>
+                                                </th:block>
+                                                <div th:unless="!${orders.?[orderDate == setting.date].isEmpty()}">
+                                                    <a th:href="@{/orders/new(employeeId=${employee.id}, date=${setting.date})}" class="btn btn-sm btn-outline-primary">
+                                                        <i class="bi bi-plus-circle"></i> 新規注文
+                                                    </a>
+                                                </div>
+                                            </div>
+                                            <div th:unless="${setting.menuSet}" class="text-muted">-</div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 注文履歴へのリンク -->
+            <div class="mt-4">
+                <a th:href="@{/orders/history(employeeId=${employee.id})}" class="btn btn-info">
+                    <i class="bi bi-clock-history"></i> 注文履歴を見る
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <th:block layout:fragment="scripts">
+        <script th:src="@{/js/common.js}"></script>
+    </th:block>
+</body>
+</html>

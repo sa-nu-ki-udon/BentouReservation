@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>業者選択</title>
+</head>
+<body>
+    <main layout:fragment="content">
+        <div class="container">
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h2>
+                        <i class="bi bi-building me-2"></i>業者を選択してください
+                    </h2>
+                    <p class="text-muted" th:text="${'月次集計対象: ' + yearMonth.year + '年' + yearMonth.monthValue + '月'}"></p>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="list-group">
+                        <a th:each="vendor : ${vendors}"
+                           th:href="@{/monthly-billing/vendor(vendorId=${vendor.id}, year=${yearMonth.year}, month=${yearMonth.monthValue})}"
+                           class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1" th:text="${vendor.name}"></h5>
+                            </div>
+                            <p class="mb-1 text-muted">
+                                <span th:if="${vendor.contactInfo}" th:text="${'連絡先: ' + vendor.contactInfo}"></span>
+                                <span th:unless="${vendor.contactInfo}" class="text-muted">連絡先未設定</span>
+                            </p>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <a th:href="@{/monthly-billing}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> 月次集計に戻る
+                </a>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

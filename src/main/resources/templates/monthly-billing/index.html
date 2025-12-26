@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>月次集計</title>
+</head>
+<body>
+    <main layout:fragment="content">
+        <div class="container">
+            <!-- ページヘッダー -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h2>
+                        <i class="bi bi-graph-up me-2"></i>月次集計サマリー
+                    </h2>
+                </div>
+            </div>
+
+            <!-- 月次ナビゲーション -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <a th:href="@{/monthly-billing(year=${previousMonth.year}, month=${previousMonth.monthValue})}" class="btn btn-outline-secondary">
+                    <i class="bi bi-chevron-left"></i> 前月
+                </a>
+                <h3 class="mb-0">
+                    <span th:text="${yearMonth.year}"></span>年
+                    <span th:text="${yearMonth.monthValue}"></span>月
+                </h3>
+                <a th:href="@{/monthly-billing(year=${nextMonth.year}, month=${nextMonth.monthValue})}" class="btn btn-outline-secondary">
+                    次月 <i class="bi bi-chevron-right"></i>
+                </a>
+            </div>
+
+            <!-- サマリーカード -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">
+                                <i class="bi bi-person"></i> 社員別集計
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <div class="col-6">
+                                    <div class="text-center">
+                                        <h6 class="text-muted">注文者数</h6>
+                                        <h3 class="text-primary" th:text="${summary.totalEmployees}"></h3>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="text-center">
+                                        <h6 class="text-muted">合計注文数</h6>
+                                        <h3 class="text-primary" th:text="${summary.totalEmployeeOrders}"></h3>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-grid gap-2">
+                                <a th:href="@{/monthly-billing/employee(year=${yearMonth.year}, month=${yearMonth.monthValue})}" class="btn btn-outline-primary">
+                                    社員別集計を見る
+                                </a>
+                                <a th:href="@{/monthly-billing/all-employees(year=${yearMonth.year}, month=${yearMonth.monthValue})}" class="btn btn-outline-primary">
+                                    全社員の一覧を見る
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0">
+                                <i class="bi bi-building"></i> 業者別集計
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <div class="col-6">
+                                    <div class="text-center">
+                                        <h6 class="text-muted">対象業者数</h6>
+                                        <h3 class="text-success" th:text="${summary.totalVendors}"></h3>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="text-center">
+                                        <h6 class="text-muted">合計注文数</h6>
+                                        <h3 class="text-success" th:text="${summary.totalVendorOrders}"></h3>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-grid gap-2">
+                                <a th:href="@{/monthly-billing/vendor(year=${yearMonth.year}, month=${yearMonth.monthValue})}" class="btn btn-outline-success">
+                                    業者別集計を見る
+                                </a>
+                                <a th:href="@{/monthly-billing/all-vendors(year=${yearMonth.year}, month=${yearMonth.monthValue})}" class="btn btn-outline-success">
+                                    全業者の一覧を見る
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 合計売上 -->
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0">
+                                <i class="bi bi-coin"></i> 月間売上サマリー
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row text-center">
+                                <div class="col-md-3">
+                                    <div>
+                                        <h6 class="text-muted">総売上</h6>
+                                        <h3 class="text-primary" th:text="${'¥' + #numbers.formatDecimal(summary.totalRevenue, 0, 'COMMA', 0, 'POINT')}"></h3>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div>
+                                        <h6 class="text-muted">社員別売上</h6>
+                                        <h3 class="text-primary" th:text="${'¥' + #numbers.formatDecimal(summary.employeeBillingTotal, 0, 'COMMA', 0, 'POINT')}"></h3>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div>
+                                        <h6 class="text-muted">業者別売上</h6>
+                                        <h3 class="text-primary" th:text="${'¥' + #numbers.formatDecimal(summary.vendorBillingTotal, 0, 'COMMA', 0, 'POINT')}"></h3>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div>
+                                        <h6 class="text-muted">平均注文単価</h6>
+                                        <h3 class="text-primary" th:text="${'¥' + #numbers.formatDecimal(summary.averagePrice, 0, 'COMMA', 0, 'POINT')}"></h3>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <th:block layout:fragment="scripts">
+        <script th:src="@{/js/common.js}"></script>
+    </th:block>
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>注文変更</title>
+</head>
+<body>
+    <main layout:fragment="content">
+        <div class="container">
+            <!-- ページヘッダー -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h2>
+                        <i class="bi bi-pencil-square me-2"></i>注文変更
+                    </h2>
+                </div>
+            </div>
+
+            <!-- 注文情報 -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label"><strong>社員名</strong></label>
+                                <div th:text="${employee.name}"></div>
+                                <small class="text-muted" th:text="${'（' + employee.department + '）'}"></small>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label"><strong>注文日</strong></label>
+                                <div th:text="${#temporals.format(order.orderDate, 'yyyy年MM月dd日（EEE）')}"></div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label"><strong>メニューセット</strong></label>
+                                <div th:text="${calendarSetting.menuSet.name}"></div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label"><strong>現在の注文</strong></label>
+                                <div class="badge bg-info" th:text="${order.menu.name}"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 注文変更フォーム -->
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-body">
+                            <form th:action="@{/orders/update(employeeId=${employee.id}, date=${order.orderDate})}" th:object="${orderUpdateRequest}" method="post">
+
+                                <!-- メニュー選択 -->
+                                <div class="mb-4">
+                                    <label class="form-label form-required">変更後のメニューを選択してください</label>
+
+                                    <div th:if="${calendarSetting.menuSet.items.empty}" class="alert alert-warning">
+                                        このメニューセットにはメニューが登録されていません。
+                                    </div>
+
+                                    <div th:unless="${calendarSetting.menuSet.items.empty}" class="list-group">
+                                        <div th:each="item : ${calendarSetting.menuSet.items}" class="list-group-item">
+                                            <div class="form-check">
+                                                <input class="form-check-input"
+                                                       type="radio"
+                                                       name="menuId"
+                                                       th:value="${item.menu.id}"
+                                                       th:id="menu_${item.menu.id}"
+                                                       th:field="*{menuId}">
+                                                <label class="form-check-label w-100 cursor-pointer" th:for="menu_${item.menu.id}">
+                                                    <div class="d-flex justify-content-between align-items-start">
+                                                        <div>
+                                                            <div class="fw-bold" th:text="${item.menu.name}"></div>
+                                                            <small class="text-muted" th:text="${item.menu.vendor.name}"></small>
+                                                        </div>
+                                                        <div class="text-end">
+                                                            <div class="fw-bold text-primary" th:text="${'¥' + #numbers.formatDecimal(item.menu.price, 0, 'COMMA', 0, 'POINT')}"></div>
+                                                            <small class="text-muted" th:text="${'適用開始: ' + #temporals.format(item.menu.effectiveFrom, 'yyyy/MM/dd')}"></small>
+                                                        </div>
+                                                    </div>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="field-error" th:if="${#fields.hasErrors('menuId')}"
+                                         th:errors="*{menuId}"></div>
+                                </div>
+
+                                <!-- 注文なしオプション -->
+                                <div class="mb-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input"
+                                               type="radio"
+                                               name="menuId"
+                                               value="0"
+                                               id="menu_none"
+                                               onchange="document.getElementById('menuId').value = '';">
+                                        <label class="form-check-label" for="menu_none">
+                                            注文をキャンセル
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- ボタン -->
+                                <div class="mb-3">
+                                    <button type="submit" class="btn btn-primary me-2">
+                                        <i class="bi bi-check-circle"></i> 変更を保存
+                                    </button>
+                                    <a th:href="@{/orders(employeeId=${employee.id})}" class="btn btn-outline-secondary me-2">
+                                        <i class="bi bi-x-circle"></i> キャンセル
+                                    </a>
+                                    <button type="button" class="btn btn-outline-danger" onclick="if(confirm('この注文を削除してもよろしいですか？')) { var form = document.createElement('form'); form.method='POST'; form.action='${@org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.fromMethodName(T(Sample.BentouReservation.controller.OrderController).getMethod('deleteOrder', Long.TYPE, java.time.LocalDate.class, org.springframework.web.servlet.mvc.support.RedirectAttributes.class))}'; var input1 = document.createElement('input'); input1.type='hidden'; input1.name='employeeId'; input1.value='${employee.id}'; form.appendChild(input1); var input2 = document.createElement('input'); input2.type='hidden'; input2.name='date'; input2.value='${order.orderDate}'; form.appendChild(input2); document.body.appendChild(form); form.submit(); }">
+                                        <i class="bi bi-trash"></i> 削除
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 注意事項 -->
+            <div class="row mt-4">
+                <div class="col-md-8">
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        <strong>注意:</strong> 注文は当日朝8:30までに変更・キャンセルできます。8:30以降の変更は受け付けられません。
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <th:block layout:fragment="scripts">
+        <script th:src="@{/js/common.js}"></script>
+    </th:block>
+</body>
+</html>

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>注文入力</title>
+</head>
+<body>
+    <main layout:fragment="content">
+        <div class="container">
+            <!-- ページヘッダー -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h2>
+                        <i class="bi bi-plus-circle me-2"></i>注文入力
+                    </h2>
+                </div>
+            </div>
+
+            <!-- 注文情報 -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label"><strong>社員名</strong></label>
+                                <div th:text="${employee.name}"></div>
+                                <small class="text-muted" th:text="${'（' + employee.department + '）'}"></small>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label"><strong>注文日</strong></label>
+                                <div th:text="${#temporals.format(calendarSetting.date, 'yyyy年MM月dd日（EEE）')}"></div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label"><strong>メニューセット</strong></label>
+                                <div th:text="${calendarSetting.menuSet.name}"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 注文フォーム -->
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-body">
+                            <form th:action="@{/orders}" th:object="${orderCreateRequest}" method="post">
+                                <!-- 非表示フィールド -->
+                                <input type="hidden" th:field="*{employeeId}">
+                                <input type="hidden" th:field="*{orderDate}">
+
+                                <!-- メニュー選択 -->
+                                <div class="mb-4">
+                                    <label class="form-label form-required">注文するメニューを選択してください</label>
+
+                                    <div th:if="${calendarSetting.menuSet.items.empty}" class="alert alert-warning">
+                                        このメニューセットにはメニューが登録されていません。
+                                    </div>
+
+                                    <div th:unless="${calendarSetting.menuSet.items.empty}" class="list-group">
+                                        <div th:each="item : ${calendarSetting.menuSet.items}" class="list-group-item">
+                                            <div class="form-check">
+                                                <input class="form-check-input"
+                                                       type="radio"
+                                                       name="menuId"
+                                                       th:value="${item.menu.id}"
+                                                       th:id="menu_${item.menu.id}"
+                                                       th:field="*{menuId}">
+                                                <label class="form-check-label w-100 cursor-pointer" th:for="menu_${item.menu.id}">
+                                                    <div class="d-flex justify-content-between align-items-start">
+                                                        <div>
+                                                            <div class="fw-bold" th:text="${item.menu.name}"></div>
+                                                            <small class="text-muted" th:text="${item.menu.vendor.name}"></small>
+                                                        </div>
+                                                        <div class="text-end">
+                                                            <div class="fw-bold text-primary" th:text="${'¥' + #numbers.formatDecimal(item.menu.price, 0, 'COMMA', 0, 'POINT')}"></div>
+                                                            <small class="text-muted" th:text="${'適用開始: ' + #temporals.format(item.menu.effectiveFrom, 'yyyy/MM/dd')}"></small>
+                                                        </div>
+                                                    </div>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="field-error" th:if="${#fields.hasErrors('menuId')}"
+                                         th:errors="*{menuId}"></div>
+                                </div>
+
+                                <!-- 注文なしオプション -->
+                                <div class="mb-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input"
+                                               type="radio"
+                                               name="menuId"
+                                               value="0"
+                                               id="menu_none"
+                                               onchange="document.getElementById('menuId').value = '';">
+                                        <label class="form-check-label" for="menu_none">
+                                            注文しない
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- ボタン -->
+                                <div class="mb-3">
+                                    <button type="submit" class="btn btn-primary me-2">
+                                        <i class="bi bi-check-circle"></i> 注文する
+                                    </button>
+                                    <a th:href="@{/orders(employeeId=${employee.id})}" class="btn btn-outline-secondary">
+                                        <i class="bi bi-x-circle"></i> キャンセル
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <th:block layout:fragment="scripts">
+        <script th:src="@{/js/common.js}"></script>
+    </th:block>
+</body>
+</html>

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>注文履歴</title>
+</head>
+<body>
+    <main layout:fragment="content">
+        <div class="container">
+            <!-- ページヘッダー -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h2>
+                        <i class="bi bi-clock-history me-2"></i>注文履歴
+                    </h2>
+                </div>
+                <div class="col-md-6 text-end">
+                    <a th:href="@{/orders(employeeId=${employee.id})}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> 注文カレンダーに戻る
+                    </a>
+                </div>
+            </div>
+
+            <!-- 社員情報 -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div>
+                                <strong>社員名:</strong>
+                                <span th:text="${employee.name}"></span>
+                                <span class="badge bg-secondary" th:text="${employee.department ?: '部署未設定'}"></span>
+                            </div>
+                            <div class="text-muted small mt-1">
+                                社員番号: <span th:text="${employee.employeeNumber}"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <div>
+                                <strong>注文件数:</strong>
+                                <span th:text="${orders.size()}"></span>件
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 注文履歴テーブル -->
+            <div class="card">
+                <div class="card-body">
+                    <div th:if="${orders.empty}" class="alert alert-info">
+                        まだ注文履歴がありません。
+                    </div>
+
+                    <div th:unless="${orders.empty}" class="table-responsive">
+                        <table class="table table-hover table-striped">
+                            <thead>
+                                <tr class="table-secondary">
+                                    <th>注文日</th>
+                                    <th>曜日</th>
+                                    <th>メニュー</th>
+                                    <th>業者</th>
+                                    <th>価格</th>
+                                    <th>注文日時</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="order : ${orders}">
+                                    <td class="fw-bold" th:text="${#temporals.format(order.orderDate, 'yyyy/MM/dd')}"></td>
+                                    <td th:text="${#temporals.format(order.orderDate, 'EEE')}"></td>
+                                    <td th:text="${order.menu.name}"></td>
+                                    <td th:text="${order.menu.vendor.name}"></td>
+                                    <td class="text-end">
+                                        <span th:text="${'¥' + #numbers.formatDecimal(order.price, 0, 'COMMA', 0, 'POINT')}"></span>
+                                    </td>
+                                    <td class="small text-muted" th:text="${#temporals.format(order.createdAt, 'yyyy/MM/dd HH:mm')}"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- サマリー -->
+                        <div class="mt-4 pt-3 border-top">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <strong>合計:</strong>
+                                </div>
+                                <div class="col-md-6 text-end">
+                                    <strong th:text="${'¥' + #numbers.formatDecimal(orders.stream().map(#this.price).reduce(0, #this.add()), 0, 'COMMA', 0, 'POINT')}"></strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ページ下部ナビゲーション -->
+            <div class="mt-4">
+                <a th:href="@{/orders}" class="btn btn-outline-secondary">
+                    <i class="bi bi-house"></i> 社員選択に戻る
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <th:block layout:fragment="scripts">
+        <script th:src="@{/js/common.js}"></script>
+    </th:block>
+</body>
+</html>

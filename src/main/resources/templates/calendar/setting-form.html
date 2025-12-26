@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>カレンダー単日設定</title>
+</head>
+<body>
+    <main layout:fragment="content">
+        <div class="container">
+            <!-- ページヘッダー -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h2>
+                        <i class="bi bi-calendar-event me-2"></i>
+                        <span th:if="${isEdit}" text="カレンダー設定を編集">カレンダー設定を編集</span>
+                        <span th:unless="${isEdit}" text="カレンダー設定を追加">カレンダー設定を追加</span>
+                    </h2>
+                </div>
+            </div>
+
+            <!-- 設定フォーム -->
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-body">
+                            <form th:action="@{/calendar/settings}" th:object="${calendarSettingRequest}" method="post">
+
+                                <!-- 対象日付（非表示） -->
+                                <input type="hidden" th:field="*{date}">
+
+                                <!-- 対象日付の表示 -->
+                                <div class="mb-4">
+                                    <label class="form-label"><strong>対象日付</strong></label>
+                                    <div class="form-control-plaintext">
+                                        <h5 th:text="${#temporals.format(calendarSettingRequest.date, 'yyyy年MM月dd日（EEEE）')}"></h5>
+                                    </div>
+                                </div>
+
+                                <!-- 休日フラグ -->
+                                <div class="mb-4">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input"
+                                               type="checkbox"
+                                               id="isHolidayCheckbox"
+                                               th:field="*{isHoliday}">
+                                        <label class="form-check-label" for="isHolidayCheckbox">
+                                            この日は休日（注文不可）
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- メニューセット選択 -->
+                                <div class="mb-4" id="menuSetSection" style="display: none;">
+                                    <label class="form-label form-required">メニューセットを選択</label>
+                                    <select class="form-select" th:field="*{menuSetId}">
+                                        <option value="">-- 選択してください --</option>
+                                        <option th:each="menuSet : ${menuSets}"
+                                                th:value="${menuSet.id}"
+                                                th:text="${menuSet.name}"></option>
+                                    </select>
+                                    <div class="field-error" th:if="${#fields.hasErrors('menuSetId')}"
+                                         th:errors="*{menuSetId}"></div>
+                                </div>
+
+                                <!-- メモ -->
+                                <div class="mb-4">
+                                    <label class="form-label" for="memoField">メモ</label>
+                                    <textarea class="form-control"
+                                              id="memoField"
+                                              th:field="*{memo}"
+                                              rows="3"
+                                              placeholder="休日の理由など、メモを入力できます"></textarea>
+                                    <small class="form-text text-muted">
+                                        最大255文字
+                                    </small>
+                                    <div class="field-error" th:if="${#fields.hasErrors('memo')}"
+                                         th:errors="*{memo}"></div>
+                                </div>
+
+                                <!-- ボタン -->
+                                <div class="mb-3">
+                                    <button type="submit" class="btn btn-primary me-2">
+                                        <i class="bi bi-check-circle"></i>
+                                        <span th:if="${isEdit}" text="更新">更新</span>
+                                        <span th:unless="${isEdit}" text="保存">保存</span>
+                                    </button>
+                                    <a th:href="@{/calendar}" class="btn btn-outline-secondary">
+                                        <i class="bi bi-x-circle"></i> キャンセル
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- サイドパネル -->
+                <div class="col-md-4">
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            <h6 class="card-title">
+                                <i class="bi bi-info-circle"></i> 設定方法
+                            </h6>
+                            <ul class="small">
+                                <li><strong>通常営業日:</strong> 「この日は休日」のチェックを外し、メニューセットを選択します</li>
+                                <li><strong>休日:</strong> 「この日は休日」にチェックを入れます。この日は注文できません</li>
+                                <li><strong>メモ:</strong> 祝日出勤など特別な理由がある場合はメモに入力してください</li>
+                            </ul>
+
+                            <hr>
+
+                            <h6 class="card-title mt-3">
+                                <i class="bi bi-calendar-week"></i> 一括設定について
+                            </h6>
+                            <p class="small">
+                                複数日の設定を一度に行う場合は、<a th:href="@{/calendar/settings/bulk}">一括設定画面</a>をご利用ください。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <th:block layout:fragment="scripts">
+        <script th:src="@{/js/common.js}"></script>
+        <script>
+            // 休日チェックボックスの状態に応じてメニューセット選択を表示/非表示
+            document.addEventListener('DOMContentLoaded', function() {
+                const isHolidayCheckbox = document.getElementById('isHolidayCheckbox');
+                const menuSetSection = document.getElementById('menuSetSection');
+
+                function updateMenuSetVisibility() {
+                    if (isHolidayCheckbox.checked) {
+                        menuSetSection.style.display = 'none';
+                    } else {
+                        menuSetSection.style.display = 'block';
+                    }
+                }
+
+                // 初期状態を設定
+                updateMenuSetVisibility();
+
+                // チェックボックスが変更された時に表示/非表示を切り替え
+                isHolidayCheckbox.addEventListener('change', updateMenuSetVisibility);
+            });
+        </script>
+    </th:block>
+</body>
+</html>

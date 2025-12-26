@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>日次集計印刷 - 全業者</title>
+    <style th:inline="css">
+        @media print {
+            .no-print { display: none !important; }
+            body { margin: 0; padding: 20mm; }
+            .container { max-width: 100%; }
+            .page-break { page-break-after: always; margin-bottom: 20mm; }
+        }
+    </style>
+</head>
+<body>
+    <main layout:fragment="content">
+        <div class="container">
+            <!-- 印刷ボタン（印刷時非表示） -->
+            <div class="no-print mb-4">
+                <button onclick="window.print()" class="btn btn-primary">
+                    <i class="bi bi-printer"></i> 印刷
+                </button>
+                <a href="javascript:window.close()" class="btn btn-outline-secondary">
+                    <i class="bi bi-x-circle"></i> 閉じる
+                </a>
+            </div>
+
+            <!-- 全業者の集計 -->
+            <div th:if="${aggregations.empty}" class="alert alert-info">
+                この日の注文がありません。
+            </div>
+
+            <div th:unless="${aggregations.empty}">
+                <!-- ページごとに業者の集計を表示 -->
+                <div th:each="vendorAgg, stat : ${aggregations}" th:classappend="${!stat.last ? 'page-break' : ''}">
+                    <!-- ヘッダー -->
+                    <div class="text-center mb-4">
+                        <h2>弁当注文集計表</h2>
+                        <p class="text-muted">
+                            <span th:text="${#temporals.format(targetDate, 'yyyy年MM月dd日（EEEE）')}"></span>
+                        </p>
+                    </div>
+
+                    <!-- 業者情報 -->
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div>
+                                        <strong>業者名:</strong>
+                                        <span th:text="${vendorAgg.vendor.name}"></span>
+                                    </div>
+                                    <div class="mt-2">
+                                        <strong>連絡先:</strong>
+                                        <span th:if="${vendorAgg.vendor.contactInfo}" th:text="${vendorAgg.vendor.contactInfo}"></span>
+                                        <span th:unless="${vendorAgg.vendor.contactInfo}" class="text-muted">未設定</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 text-end">
+                                    <div>
+                                        <strong>発行日:</strong>
+                                        <span th:text="${#temporals.format(T(java.time.LocalDateTime).now(), 'yyyy/MM/dd HH:mm')}"></span>
+                                    </div>
+                                    <div class="mt-2">
+                                        <strong>対象日:</strong>
+                                        <span th:text="${#temporals.format(targetDate, 'yyyy/MM/dd')}"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 集計テーブル -->
+                    <div class="mb-4">
+                        <h5 class="mb-3">メニュー別注文集計</h5>
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead class="table-secondary">
+                                    <tr>
+                                        <th class="text-center" style="width: 40%;">メニュー</th>
+                                        <th class="text-center" style="width: 15%;">単価</th>
+                                        <th class="text-center" style="width: 15%;">数量</th>
+                                        <th class="text-center" style="width: 20%;">小計</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="menuAgg : ${vendorAgg.menuAggregations}">
+                                        <td th:text="${menuAgg.menuName}"></td>
+                                        <td class="text-center" th:text="${'¥' + #numbers.formatDecimal(menuAgg.unitPrice, 0, 'COMMA', 0, 'POINT')}"></td>
+                                        <td class="text-center fw-bold" th:text="${menuAgg.quantity}"></td>
+                                        <td class="text-center fw-bold" th:text="${'¥' + #numbers.formatDecimal(menuAgg.subtotal, 0, 'COMMA', 0, 'POINT')}"></td>
+                                    </tr>
+                                </tbody>
+                                <tfoot>
+                                    <tr class="table-secondary fw-bold">
+                                        <td colspan="3" class="text-end">合計</td>
+                                        <td class="text-center" th:text="${'¥' + #numbers.formatDecimal(vendorAgg.totalRevenue, 0, 'COMMA', 0, 'POINT')}"></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- サマリー -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <strong>合計注文数</strong>
+                                        </div>
+                                        <div class="col-6 text-end">
+                                            <strong th:text="${vendorAgg.totalOrderCount}"></strong>件
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <strong>合計売上</strong>
+                                        </div>
+                                        <div class="col-6 text-end">
+                                            <strong th:text="${'¥' + #numbers.formatDecimal(vendorAgg.totalRevenue, 0, 'COMMA', 0, 'POINT')}"></strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- フッター -->
+                    <div class="text-center text-muted small mt-5 pt-4 border-top">
+                        <p>この表は弁当予約管理システムにより自動生成されました。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <th:block layout:fragment="scripts">
+        <script th:src="@{/js/common.js}"></script>
+    </th:block>
+</body>
+</html>

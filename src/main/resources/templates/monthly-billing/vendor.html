@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>業者別月次集計</title>
+</head>
+<body>
+    <main layout:fragment="content">
+        <div class="container">
+            <!-- ページヘッダー -->
+            <div class="row mb-4">
+                <div class="col-md-8">
+                    <h2>
+                        <i class="bi bi-building me-2"></i>業者別月次集計
+                    </h2>
+                </div>
+                <div class="col-md-4 text-end">
+                    <a th:href="@{/monthly-billing/vendor/print(vendorId=${billing.vendor.id}, year=${yearMonth.year}, month=${yearMonth.monthValue})}"
+                       class="btn btn-outline-info" target="_blank">
+                        <i class="bi bi-printer"></i> 印刷
+                    </a>
+                </div>
+            </div>
+
+            <!-- 業者情報 -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div><strong>業者名:</strong> <span th:text="${billing.vendor.name}"></span></div>
+                            <div class="mt-1"><strong>連絡先:</strong> <span th:text="${billing.vendor.contactInfo ?: '未設定'}"></span></div>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <h5 th:text="${yearMonth.year + '年' + yearMonth.monthValue + '月'}"></h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 月次ナビゲーション -->
+            <div class="d-flex justify-content-center gap-2 mb-4">
+                <a th:href="@{/monthly-billing/vendor(vendorId=${billing.vendor.id}, year=${previousMonth.year}, month=${previousMonth.monthValue})}" class="btn btn-outline-secondary">
+                    <i class="bi bi-chevron-left"></i> 前月
+                </a>
+                <a th:href="@{/monthly-billing/vendor(year=${yearMonth.year}, month=${yearMonth.monthValue})}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> 業者選択
+                </a>
+                <a th:href="@{/monthly-billing/vendor(vendorId=${billing.vendor.id}, year=${nextMonth.year}, month=${nextMonth.monthValue})}" class="btn btn-outline-secondary">
+                    次月 <i class="bi bi-chevron-right"></i>
+                </a>
+            </div>
+
+            <!-- メニュー別集計テーブル -->
+            <div class="card mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">メニュー別注文集計</h5>
+                </div>
+                <div class="card-body">
+                    <div th:if="${billing.menuDetails.empty}" class="alert alert-info">
+                        この月に注文がありません。
+                    </div>
+
+                    <div th:unless="${billing.menuDetails.empty}" class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr class="table-secondary">
+                                    <th>メニュー</th>
+                                    <th class="text-center">注文件数</th>
+                                    <th class="text-end">単価</th>
+                                    <th class="text-end">小計</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="detail : ${billing.menuDetails}">
+                                    <td th:text="${detail.menuName}"></td>
+                                    <td class="text-center fw-bold" th:text="${detail.quantity}"></td>
+                                    <td class="text-end" th:text="${'¥' + #numbers.formatDecimal(detail.unitPrice, 0, 'COMMA', 0, 'POINT')}"></td>
+                                    <td class="text-end fw-bold text-primary" th:text="${'¥' + #numbers.formatDecimal(detail.subtotal, 0, 'COMMA', 0, 'POINT')}"></td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr class="table-secondary fw-bold">
+                                    <td colspan="2">合計</td>
+                                    <td colspan="2" class="text-end" th:text="${'¥' + #numbers.formatDecimal(billing.totalAmount, 0, 'COMMA', 0, 'POINT')}"></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- サマリー -->
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <h6 class="text-muted">合計注文数</h6>
+                            <h3 th:text="${billing.totalOrders}"></h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <h6 class="text-muted">合計売上</h6>
+                            <h3 class="text-primary" th:text="${'¥' + #numbers.formatDecimal(billing.totalAmount, 0, 'COMMA', 0, 'POINT')}"></h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <th:block layout:fragment="scripts">
+        <script th:src="@{/js/common.js}"></script>
+    </th:block>
+</body>
+</html>

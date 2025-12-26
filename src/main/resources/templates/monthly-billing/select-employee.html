@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>社員選択</title>
+</head>
+<body>
+    <main layout:fragment="content">
+        <div class="container">
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h2>
+                        <i class="bi bi-person-check me-2"></i>社員を選択してください
+                    </h2>
+                    <p class="text-muted" th:text="${'月次集計対象: ' + yearMonth.year + '年' + yearMonth.monthValue + '月'}"></p>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="list-group">
+                        <a th:each="employee : ${employees}"
+                           th:href="@{/monthly-billing/employee(employeeId=${employee.id}, year=${yearMonth.year}, month=${yearMonth.monthValue})}"
+                           class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1" th:text="${employee.name}"></h5>
+                                <small th:text="${employee.department ?: '部署未設定'}"></small>
+                            </div>
+                            <p class="mb-1 text-muted">
+                                社員番号: <span th:text="${employee.employeeNumber}"></span>
+                            </p>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <a th:href="@{/monthly-billing}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> 月次集計に戻る
+                </a>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

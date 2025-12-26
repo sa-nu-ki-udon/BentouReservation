@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>カレンダー設定</title>
+</head>
+<body>
+    <main layout:fragment="content">
+        <div class="container">
+            <!-- ページヘッダー -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h2>
+                        <i class="bi bi-calendar3 me-2"></i>カレンダー設定
+                    </h2>
+                </div>
+                <div class="col-md-6 text-end">
+                    <div class="btn-group" role="group">
+                        <a th:href="@{/calendar/settings/new(date=${#temporals.format(T(java.time.LocalDate).now(), 'yyyy-MM-dd')})}" class="btn btn-outline-primary">
+                            <i class="bi bi-plus-circle"></i> 単日設定
+                        </a>
+                        <a th:href="@{/calendar/settings/bulk}" class="btn btn-outline-info">
+                            <i class="bi bi-calendar-week"></i> 一括設定
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 月次ナビゲーション -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <a th:href="@{/calendar(year=${previousMonth.year}, month=${previousMonth.monthValue})}" class="btn btn-outline-secondary">
+                    <i class="bi bi-chevron-left"></i> 前月
+                </a>
+                <h3 class="mb-0">
+                    <span th:text="${currentYear}"></span>年
+                    <span th:text="${currentMonth}"></span>月
+                </h3>
+                <a th:href="@{/calendar(year=${nextMonth.year}, month=${nextMonth.monthValue})}" class="btn btn-outline-secondary">
+                    次月 <i class="bi bi-chevron-right"></i>
+                </a>
+            </div>
+
+            <!-- カレンダーテーブル -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered calendar-table">
+                            <thead>
+                                <tr class="table-secondary">
+                                    <th class="text-center" style="width: 14%;">日</th>
+                                    <th class="text-center" style="width: 14%;">月</th>
+                                    <th class="text-center" style="width: 14%;">火</th>
+                                    <th class="text-center" style="width: 14%;">水</th>
+                                    <th class="text-center" style="width: 14%;">木</th>
+                                    <th class="text-center" style="width: 14%;">金</th>
+                                    <th class="text-center" style="width: 14%;">土</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <th:block th:each="week : ${calendarMonth.weeks}">
+                                    <tr th:each="day : ${week}">
+                                        <td style="min-height: 100px; vertical-align: top;"
+                                            th:classappend="${day == null ? 'bg-light' : ''}"
+                                            th:classappend="${day != null && day.isHoliday ? 'table-danger' : ''}">
+                                            <div th:if="${day != null}">
+                                                <!-- 日付 -->
+                                                <div class="fw-bold mb-2">
+                                                    <span th:text="${day.date.dayOfMonth}"></span>
+                                                    <span th:if="${day.isHoliday}" class="badge bg-danger">休</span>
+                                                    <span th:if="${day.isToday}" class="badge bg-primary">今日</span>
+                                                </div>
+
+                                                <!-- メニューセット情報 -->
+                                                <div th:if="${day.menuSet}" class="mb-2">
+                                                    <small class="bg-light p-1 d-block mb-1 rounded">
+                                                        <strong th:text="${day.menuSet.name}"></strong>
+                                                    </small>
+                                                </div>
+
+                                                <!-- 状態表示 -->
+                                                <div th:if="${day.isHoliday}" class="small text-danger mb-2">
+                                                    <i class="bi bi-calendar-x"></i> 休日
+                                                    <div th:if="${day.memo}" class="text-muted" th:text="${day.memo}"></div>
+                                                </div>
+                                                <div th:unless="${day.isHoliday}" class="small mb-2">
+                                                    <div th:if="${day.menuSet}" class="text-success">
+                                                        <i class="bi bi-check-circle"></i> 注文可能
+                                                    </div>
+                                                    <div th:unless="${day.menuSet}" class="text-muted">
+                                                        <i class="bi bi-dash"></i> 未設定
+                                                    </div>
+                                                </div>
+
+                                                <!-- アクション -->
+                                                <div class="btn-group btn-group-sm d-flex" role="group">
+                                                    <a th:href="@{/calendar/settings/new(date=${day.date})}"
+                                                       class="btn btn-sm btn-outline-primary flex-grow-1"
+                                                       th:text="${day.menuSet ? '変更' : '設定'}"></a>
+                                                    <button th:if="${day.menuSet}"
+                                                            class="btn btn-sm btn-outline-danger flex-grow-1"
+                                                            onclick="deleteCalendarSetting(this)"
+                                                            th:data-date="${day.date}"
+                                                            type="button">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </th:block>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 凡例 -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            <h6 class="card-title">凡例</h6>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <span class="badge bg-success me-2"></span>注文可能（メニューセット設定あり）
+                                </div>
+                                <div class="col-md-3">
+                                    <span class="badge bg-secondary me-2"></span>未設定（メニューセット未設定）
+                                </div>
+                                <div class="col-md-3">
+                                    <span class="badge bg-danger me-2"></span>休日（注文不可）
+                                </div>
+                                <div class="col-md-3">
+                                    <span class="badge bg-primary me-2"></span>今日
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <th:block layout:fragment="scripts">
+        <script th:src="@{/js/common.js}"></script>
+        <script>
+            function deleteCalendarSetting(button) {
+                const date = button.getAttribute('data-date');
+                if (confirm('この日付のカレンダー設定を削除してもよろしいですか？')) {
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = '/calendar/settings/delete?date=' + date;
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            }
+        </script>
+    </th:block>
+</body>
+</html>

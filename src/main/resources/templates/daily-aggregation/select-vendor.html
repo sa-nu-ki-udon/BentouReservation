@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>業者選択</title>
+</head>
+<body>
+    <main layout:fragment="content">
+        <div class="container">
+            <!-- ページヘッダー -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h2>
+                        <i class="bi bi-building me-2"></i>業者選択
+                    </h2>
+                    <p class="text-muted">印刷対象の業者を選択してください</p>
+                </div>
+            </div>
+
+            <!-- 対象日付 -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <strong>対象日付:</strong>
+                            <span th:text="${#temporals.format(targetDate, 'yyyy年MM月dd日（EEEE）')}"></span>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <a th:href="@{/daily-aggregation(date=${targetDate})}" class="btn btn-outline-secondary btn-sm">
+                                <i class="bi bi-arrow-left"></i> 日次集計に戻る
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 業者一覧 -->
+            <div class="row">
+                <div class="col-md-8">
+                    <div th:if="${vendors.empty}" class="alert alert-info">
+                        業者が登録されていません。
+                    </div>
+
+                    <div th:unless="${vendors.empty}">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="list-group">
+                                    <a th:each="vendor : ${vendors}"
+                                       th:href="@{/daily-aggregation/print(date=${targetDate}, vendorId=${vendor.id})}"
+                                       class="list-group-item list-group-item-action"
+                                       target="_blank">
+                                        <div class="d-flex w-100 justify-content-between align-items-center">
+                                            <div>
+                                                <h5 class="mb-1" th:text="${vendor.name}"></h5>
+                                                <p class="mb-1 text-muted small">
+                                                    <span th:if="${vendor.contactInfo}" th:text="${'連絡先: ' + vendor.contactInfo}"></span>
+                                                    <span th:unless="${vendor.contactInfo}" class="text-muted">連絡先未設定</span>
+                                                </p>
+                                            </div>
+                                            <div class="text-end">
+                                                <i class="bi bi-chevron-right text-muted"></i>
+                                                <br>
+                                                <small class="text-muted">新規ウィンドウで開く</small>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 全業者一括印刷 -->
+                        <div class="mt-4">
+                            <hr>
+                            <div class="text-center">
+                                <a th:href="@{/daily-aggregation/print(date=${targetDate})}"
+                                   class="btn btn-primary btn-lg"
+                                   target="_blank">
+                                    <i class="bi bi-printer"></i> すべての業者を一括印刷
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- サイドパネル -->
+                <div class="col-md-4">
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            <h6 class="card-title">
+                                <i class="bi bi-info-circle"></i> 使い方
+                            </h6>
+                            <p class="small">
+                                <strong>個別印刷:</strong>
+                                業者をクリックすると、その業者の注文集計表が新規ウィンドウで開きます。
+                                その後、ブラウザの印刷機能を使ってFAXを送信するための表を印刷してください。
+                            </p>
+                            <p class="small">
+                                <strong>一括印刷:</strong>
+                                下部のボタンをクリックすると、すべての業者の集計表が一つのドキュメントにまとめられます。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <th:block layout:fragment="scripts">
+        <script th:src="@{/js/common.js}"></script>
+    </th:block>
+</body>
+</html>

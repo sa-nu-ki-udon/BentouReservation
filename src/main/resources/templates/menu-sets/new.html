@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>メニューセット新規登録</title>
+</head>
+<body>
+    <main layout:fragment="content">
+        <div class="container">
+            <h2><i class="bi bi-plus-circle me-2"></i>メニューセット新規登録</h2>
+            <div class="row mt-4">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-body">
+                            <form th:action="@{/menu-sets}" th:object="${menuSetCreateRequest}" method="post">
+                                <div class="mb-3">
+                                    <label class="form-label form-required">セット名</label>
+                                    <input type="text" class="form-control" th:field="*{name}">
+                                    <div class="field-error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">説明</label>
+                                    <textarea class="form-control" th:field="*{description}" rows="3"></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label form-required">含まれるメニュー</label>
+                                    <div th:if="${menus.empty}" class="alert alert-warning">メニューが登録されていません。</div>
+                                    <div th:unless="${menus.empty}">
+                                        <div th:each="menu : ${menus}" class="form-check">
+                                            <input class="form-check-input" type="checkbox" th:value="${menu.id}" th:id="menu_${menu.id}" name="menuIds">
+                                            <label class="form-check-label" th:for="menu_${menu.id}">
+                                                <span th:text="${menu.name}"></span> (<span th:text="${menu.vendor.name}"></span>) - <span th:text="${'¥' + #numbers.formatDecimal(menu.price, 0, 'COMMA', 0, 'POINT')}"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <button type="submit" class="btn btn-primary me-2"><i class="bi bi-check-circle"></i> 登録</button>
+                                    <a th:href="@{/menu-sets}" class="btn btn-outline-secondary"><i class="bi bi-x-circle"></i> キャンセル</a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

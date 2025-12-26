@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>締め日設定編集</title>
+</head>
+<body>
+    <main layout:fragment="content">
+        <div class="container">
+            <h2><i class="bi bi-pencil-square me-2"></i>締め日設定編集</h2>
+            <div class="row mt-4">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-body">
+                            <form th:action="@{/billing-closing-dates/{id}(id=${closingDate.id})}" th:object="${billingClosingDateUpdateRequest}" method="post">
+                                <div class="mb-3">
+                                    <label class="form-label text-muted">設定ID</label>
+                                    <div class="form-control-plaintext" th:text="${closingDate.id}"></div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label text-muted">種別</label>
+                                    <div class="form-control-plaintext" th:text="${closingDate.type == 'VENDOR' ? '業者別' : '個人別'}"></div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label text-muted">対象</label>
+                                    <div class="form-control-plaintext" th:text="${closingDate.targetName}"></div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label form-required">締め日（1～31日）</label>
+                                    <input type="number" min="1" max="31" class="form-control" th:field="*{closingDay}">
+                                    <div class="field-error" th:if="${#fields.hasErrors('closingDay')}" th:errors="*{closingDay}"></div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">説明</label>
+                                    <textarea class="form-control" th:field="*{description}" rows="3"></textarea>
+                                </div>
+
+                                <div class="mb-3">
+                                    <button type="submit" class="btn btn-primary me-2"><i class="bi bi-check-circle"></i> 更新</button>
+                                    <a th:href="@{/billing-closing-dates/{id}(id=${closingDate.id})}" class="btn btn-outline-secondary"><i class="bi bi-x-circle"></i> キャンセル</a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

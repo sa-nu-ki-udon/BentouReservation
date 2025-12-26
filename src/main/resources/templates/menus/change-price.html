@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>メニュー価格変更</title>
+</head>
+<body>
+    <main layout:fragment="content">
+        <div class="container">
+            <h2><i class="bi bi-cash-coin me-2"></i>メニュー価格変更</h2>
+            <div class="row mt-4">
+                <div class="col-md-8">
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <div><strong>業者:</strong> <span th:text="${menu.vendor.name}"></span></div>
+                            <div><strong>メニュー:</strong> <span th:text="${menu.name}"></span></div>
+                            <div><strong>現在の価格:</strong> <span class="fw-bold text-primary" th:text="${'¥' + #numbers.formatDecimal(menu.price, 0, 'COMMA', 0, 'POINT')}"></span></div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-body">
+                            <form th:action="@{/menus/{id}/change-price(id=${menu.id})}" th:object="${menuPriceChangeRequest}" method="post">
+                                <div class="mb-3">
+                                    <label class="form-label form-required">新しい価格</label>
+                                    <input type="number" step="0.01" class="form-control" th:field="*{newPrice}">
+                                    <div class="field-error" th:if="${#fields.hasErrors('newPrice')}" th:errors="*{newPrice}"></div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label form-required">適用開始日</label>
+                                    <input type="date" class="form-control" th:field="*{effectiveFrom}">
+                                    <div class="field-error" th:if="${#fields.hasErrors('effectiveFrom')}" th:errors="*{effectiveFrom}"></div>
+                                </div>
+                                <div class="alert alert-info">
+                                    <strong>注:</strong> 価格変更は新しいレコードとして保存され、過去データは保持されます。
+                                </div>
+                                <div class="mb-3">
+                                    <button type="submit" class="btn btn-primary me-2"><i class="bi bi-check-circle"></i> 価格を変更</button>
+                                    <a th:href="@{/menus/{id}(id=${menu.id})}" class="btn btn-outline-secondary"><i class="bi bi-x-circle"></i> キャンセル</a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

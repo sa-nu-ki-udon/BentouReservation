@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>カレンダー一括設定</title>
+</head>
+<body>
+    <main layout:fragment="content">
+        <div class="container">
+            <!-- ページヘッダー -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h2>
+                        <i class="bi bi-calendar-week me-2"></i>カレンダー一括設定
+                    </h2>
+                    <p class="text-muted">期間を指定して、複数日のメニューセットを一括設定できます</p>
+                </div>
+            </div>
+
+            <!-- 設定フォーム -->
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-body">
+                            <form th:action="@{/calendar/settings/bulk}" th:object="${calendarBulkSettingRequest}" method="post">
+
+                                <!-- 期間指定 -->
+                                <div class="mb-4">
+                                    <h6 class="card-title">期間を指定</h6>
+
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label class="form-label form-required">開始日</label>
+                                            <input type="date" class="form-control" th:field="*{startDate}">
+                                            <div class="field-error" th:if="${#fields.hasErrors('startDate')}"
+                                                 th:errors="*{startDate}"></div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label form-required">終了日</label>
+                                            <input type="date" class="form-control" th:field="*{endDate}">
+                                            <div class="field-error" th:if="${#fields.hasErrors('endDate')}"
+                                                 th:errors="*{endDate}"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-3 p-3 bg-light rounded">
+                                        <small>
+                                            指定された期間内のすべての日付に以下の設定が適用されます。
+                                            既に設定がある日付は上書きされます。
+                                        </small>
+                                    </div>
+                                </div>
+
+                                <!-- 設定内容 -->
+                                <div class="mb-4">
+                                    <h6 class="card-title">設定内容</h6>
+
+                                    <!-- 休日フラグ -->
+                                    <div class="form-check form-switch mb-3">
+                                        <input class="form-check-input"
+                                               type="checkbox"
+                                               id="isHolidayCheckbox"
+                                               th:field="*{isHoliday}">
+                                        <label class="form-check-label" for="isHolidayCheckbox">
+                                            期間内のすべての日を休日（注文不可）に設定
+                                        </label>
+                                    </div>
+
+                                    <!-- メニューセット選択 -->
+                                    <div class="mb-3" id="menuSetSection">
+                                        <label class="form-label">メニューセットを選択</label>
+                                        <select class="form-select" th:field="*{menuSetId}">
+                                            <option value="">-- 既存の設定を保持 --</option>
+                                            <option th:each="menuSet : ${menuSets}"
+                                                    th:value="${menuSet.id}"
+                                                    th:text="${menuSet.name}"></option>
+                                        </select>
+                                        <small class="form-text text-muted">
+                                            メニューセットを選択すると、期間内のメニューセット未設定の日付に設定されます。
+                                            既に設定がある日付は変更されません。
+                                        </small>
+                                        <div class="field-error" th:if="${#fields.hasErrors('menuSetId')}"
+                                             th:errors="*{menuSetId}"></div>
+                                    </div>
+
+                                    <!-- メモ -->
+                                    <div class="mb-3">
+                                        <label class="form-label" for="memoField">メモ</label>
+                                        <textarea class="form-control"
+                                                  id="memoField"
+                                                  th:field="*{memo}"
+                                                  rows="2"
+                                                  placeholder="例: 通常営業、夏季休暇など"></textarea>
+                                        <small class="form-text text-muted">
+                                            最大255文字。設定の説明を入力してください。
+                                        </small>
+                                        <div class="field-error" th:if="${#fields.hasErrors('memo')}"
+                                             th:errors="*{memo}"></div>
+                                    </div>
+                                </div>
+
+                                <!-- 注意事項 -->
+                                <div class="alert alert-warning mb-4">
+                                    <i class="bi bi-exclamation-triangle"></i>
+                                    <strong>注意:</strong> 「休日に設定」にチェックを入れた場合、
+                                    期間内のすべての日付が休日として設定され、注文できなくなります。
+                                    その他の設定は無視されます。
+                                </div>
+
+                                <!-- ボタン -->
+                                <div class="mb-3">
+                                    <button type="submit" class="btn btn-primary me-2"
+                                            onclick="return confirm('指定された期間のカレンダー設定を一括保存します。よろしいですか？');">
+                                        <i class="bi bi-check-circle"></i> 一括保存
+                                    </button>
+                                    <a th:href="@{/calendar}" class="btn btn-outline-secondary">
+                                        <i class="bi bi-x-circle"></i> キャンセル
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- サイドパネル -->
+                <div class="col-md-4">
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            <h6 class="card-title">
+                                <i class="bi bi-lightbulb"></i> 使用例
+                            </h6>
+
+                            <div class="mb-3">
+                                <strong class="small">例1: 通常営業の月を設定</strong>
+                                <ul class="small mb-0">
+                                    <li>開始日: 2024/12/1</li>
+                                    <li>終了日: 2024/12/31</li>
+                                    <li>メニューセット: レギュラーセット</li>
+                                </ul>
+                            </div>
+
+                            <hr>
+
+                            <div class="mb-3">
+                                <strong class="small">例2: GW期間（一部休館）</strong>
+                                <ul class="small mb-0">
+                                    <li>開始日: 2024/4/27</li>
+                                    <li>終了日: 2024/5/6</li>
+                                    <li>休日に設定: チェック</li>
+                                    <li>メモ: GW休館</li>
+                                </ul>
+                            </div>
+
+                            <hr>
+
+                            <h6 class="card-title mt-3">
+                                <i class="bi bi-calendar-event"></i> 単日設定について
+                            </h6>
+                            <p class="small">
+                                1日だけ設定する場合は、<a th:href="@{/calendar/settings/new(date=${#temporals.format(T(java.time.LocalDate).now(), 'yyyy-MM-dd')})}">単日設定画面</a>をご利用ください。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <th:block layout:fragment="scripts">
+        <script th:src="@{/js/common.js}"></script>
+        <script>
+            // 休日チェックボックスの状態に応じてメニューセット選択を表示/非表示
+            document.addEventListener('DOMContentLoaded', function() {
+                const isHolidayCheckbox = document.getElementById('isHolidayCheckbox');
+                const menuSetSection = document.getElementById('menuSetSection');
+
+                function updateMenuSetVisibility() {
+                    if (isHolidayCheckbox.checked) {
+                        menuSetSection.style.display = 'none';
+                    } else {
+                        menuSetSection.style.display = 'block';
+                    }
+                }
+
+                // 初期状態を設定
+                updateMenuSetVisibility();
+
+                // チェックボックスが変更された時に表示/非表示を切り替え
+                isHolidayCheckbox.addEventListener('change', updateMenuSetVisibility);
+            });
+        </script>
+    </th:block>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>締め日設定新規登録</title>
+</head>
+<body>
+    <main layout:fragment="content">
+        <div class="container">
+            <h2><i class="bi bi-plus-circle me-2"></i>締め日設定新規登録</h2>
+            <div class="row mt-4">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-body">
+                            <form th:action="@{/billing-closing-dates}" th:object="${billingClosingDateCreateRequest}" method="post">
+                                <div class="mb-3">
+                                    <label class="form-label form-required">種別</label>
+                                    <select class="form-select" th:field="*{type}" id="typeSelect" onchange="updateTargetOptions()">
+                                        <option th:each="type : ${closingDateTypes}" th:value="${type}" th:text="${type == 'VENDOR' ? '業者別' : '個人別'}"></option>
+                                    </select>
+                                    <div class="field-error" th:if="${#fields.hasErrors('type')}" th:errors="*{type}"></div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label form-required">対象</label>
+                                    <select class="form-select" th:field="*{targetId}" id="targetSelect">
+                                        <option value="">-- 選択してください --</option>
+                                        <option th:each="vendor : ${vendors}" th:value="${vendor.id}" th:text="${vendor.name}"></option>
+                                    </select>
+                                    <div class="field-error" th:if="${#fields.hasErrors('targetId')}" th:errors="*{targetId}"></div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label form-required">締め日（1～31日）</label>
+                                    <input type="number" min="1" max="31" class="form-control" th:field="*{closingDay}">
+                                    <div class="field-error" th:if="${#fields.hasErrors('closingDay')}" th:errors="*{closingDay}"></div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">説明</label>
+                                    <textarea class="form-control" th:field="*{description}" rows="3"></textarea>
+                                </div>
+
+                                <div class="mb-3">
+                                    <button type="submit" class="btn btn-primary me-2"><i class="bi bi-check-circle"></i> 登録</button>
+                                    <a th:href="@{/billing-closing-dates}" class="btn btn-outline-secondary"><i class="bi bi-x-circle"></i> キャンセル</a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function updateTargetOptions() {
+            // 簡略版：実装時は実際の動的更新を行う
+        }
+    </script>
+</body>
+</html>

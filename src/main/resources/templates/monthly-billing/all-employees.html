@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>全社員月次集計</title>
+</head>
+<body>
+    <main layout:fragment="content">
+        <div class="container">
+            <!-- ページヘッダー -->
+            <div class="row mb-4">
+                <div class="col-md-8">
+                    <h2>
+                        <i class="bi bi-people me-2"></i>全社員月次集計一覧
+                    </h2>
+                </div>
+                <div class="col-md-4 text-end">
+                    <a th:href="@{/monthly-billing}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> 月次集計に戻る
+                    </a>
+                </div>
+            </div>
+
+            <!-- 月次ナビゲーション -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <a th:href="@{/monthly-billing/all-employees(year=${previousMonth.year}, month=${previousMonth.monthValue})}" class="btn btn-outline-secondary">
+                    <i class="bi bi-chevron-left"></i> 前月
+                </a>
+                <h3 class="mb-0" th:text="${yearMonth.year + '年' + yearMonth.monthValue + '月'}"></h3>
+                <a th:href="@{/monthly-billing/all-employees(year=${nextMonth.year}, month=${nextMonth.monthValue})}" class="btn btn-outline-secondary">
+                    次月 <i class="bi bi-chevron-right"></i>
+                </a>
+            </div>
+
+            <!-- 集計テーブル -->
+            <div class="card">
+                <div class="card-body">
+                    <div th:if="${billings.empty}" class="alert alert-info">
+                        この月の注文がありません。
+                    </div>
+
+                    <div th:unless="${billings.empty}" class="table-responsive">
+                        <table class="table table-hover table-striped">
+                            <thead>
+                                <tr class="table-secondary">
+                                    <th>社員名</th>
+                                    <th>部署</th>
+                                    <th class="text-center">注文数</th>
+                                    <th class="text-right">合計金額</th>
+                                    <th class="text-center">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="billing : ${billings}">
+                                    <td><strong th:text="${billing.employee.name}"></strong></td>
+                                    <td th:text="${billing.employee.department ?: '-'}"></td>
+                                    <td class="text-center" th:text="${billing.totalOrders}"></td>
+                                    <td class="text-end fw-bold text-primary" th:text="${'¥' + #numbers.formatDecimal(billing.totalAmount, 0, 'COMMA', 0, 'POINT')}"></td>
+                                    <td class="text-center">
+                                        <a th:href="@{/monthly-billing/employee(employeeId=${billing.employee.id}, year=${yearMonth.year}, month=${yearMonth.monthValue})}"
+                                           class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-eye"></i> 詳細
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr class="table-secondary fw-bold">
+                                    <td colspan="2">合計</td>
+                                    <td class="text-center" th:text="${billings.stream().map(#this.totalOrders).reduce(0, #this.add())}"></td>
+                                    <td class="text-end" th:text="${'¥' + #numbers.formatDecimal(billings.stream().map(#this.totalAmount).reduce(0, #this.add()), 0, 'COMMA', 0, 'POINT')}"></td>
+                                    <td></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <th:block layout:fragment="scripts">
+        <script th:src="@{/js/common.js}"></script>
+    </th:block>
+</body>
+</html>
