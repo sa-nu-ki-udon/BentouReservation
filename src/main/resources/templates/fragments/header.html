@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <header th:fragment="header" class="bg-primary text-white py-3">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="h3 mb-0">
+                        <i class="bi bi-box-seam me-2"></i>
+                        <a th:href="@{/}" class="text-white text-decoration-none">弁当予約管理システム</a>
+                    </h1>
+                </div>
+                <div class="col-md-4 text-end">
+                    <span class="me-3" th:text="${#temporals.format(#temporals.createNow(), 'yyyy年MM月dd日')}"></span>
+                    <span th:text="${#temporals.format(#temporals.createNow(), 'HH:mm')}"></span>
+                </div>
+            </div>
+        </div>
+    </header>
+</body>
+</html>

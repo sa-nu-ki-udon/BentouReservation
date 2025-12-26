@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>業者一覧</title>
+</head>
+<body>
+    <main layout:fragment="content">
+        <div class="container">
+            <!-- ページヘッダー -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h2>
+                        <i class="bi bi-building me-2"></i>業者一覧
+                    </h2>
+                </div>
+                <div class="col-md-6 text-end">
+                    <a th:href="@{/vendors/new}" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i> 新規登録
+                    </a>
+                </div>
+            </div>
+
+            <!-- 検索フォーム -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <form th:action="@{/vendors}" method="get" class="input-group">
+                        <input type="text" name="name" class="form-control" placeholder="業者名で検索" th:value="${searchName}">
+                        <button type="submit" class="btn btn-outline-secondary">
+                            <i class="bi bi-search"></i> 検索
+                        </button>
+                        <a th:href="@{/vendors}" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle"></i> クリア
+                        </a>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 業者一覧テーブル -->
+            <div class="card">
+                <div class="card-body">
+                    <div th:if="${vendors.empty}" class="alert alert-info">
+                        業者が登録されていません。
+                    </div>
+
+                    <div th:unless="${vendors.empty}" class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>業者名</th>
+                                    <th>連絡先</th>
+                                    <th>登録日</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="vendor : ${vendors}">
+                                    <td th:text="${vendor.id}"></td>
+                                    <td>
+                                        <a th:href="@{/vendors/{id}(id=${vendor.id})}" th:text="${vendor.name}"></a>
+                                    </td>
+                                    <td th:text="${vendor.contactInfo ?: '-'}"></td>
+                                    <td th:text="${#temporals.format(vendor.createdAt, 'yyyy/MM/dd')}"></td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a th:href="@{/vendors/{id}(id=${vendor.id})}" class="btn btn-outline-primary">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            <a th:href="@{/vendors/{id}/edit(id=${vendor.id})}" class="btn btn-outline-secondary">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

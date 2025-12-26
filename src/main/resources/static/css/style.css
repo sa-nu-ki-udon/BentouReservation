@@ -1,0 +1,214 @@
+/* 弁当予約管理システム - カスタムスタイル */
+
+/* 全体設定 */
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+/* ヘッダー */
+header h1 a:hover {
+    opacity: 0.9;
+}
+
+/* カード */
+.card {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* テーブル */
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 123, 255, 0.05);
+}
+
+/* カレンダー */
+.calendar-day {
+    min-height: 100px;
+    border: 1px solid #dee2e6;
+    padding: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.calendar-day:hover {
+    background-color: #f8f9fa;
+}
+
+.calendar-day.holiday {
+    background-color: #ffe5e5;
+}
+
+.calendar-day.today {
+    border: 2px solid #0d6efd;
+    background-color: #e7f3ff;
+}
+
+.calendar-day.has-order {
+    background-color: #d4edda;
+}
+
+.calendar-day.orderable {
+    background-color: #fff;
+}
+
+.calendar-day.not-orderable {
+    background-color: #f0f0f0;
+    cursor: not-allowed;
+}
+
+.calendar-header {
+    background-color: #e9ecef;
+    font-weight: bold;
+    padding: 10px;
+    text-align: center;
+}
+
+/* 印刷用スタイル */
+@media print {
+    header,
+    nav,
+    footer,
+    .no-print,
+    .btn,
+    .alert {
+        display: none !important;
+    }
+
+    main {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .card {
+        box-shadow: none;
+        border: 1px solid #000;
+    }
+
+    .table {
+        border-collapse: collapse;
+    }
+
+    .table th,
+    .table td {
+        border: 1px solid #000;
+    }
+}
+
+/* バッジ */
+.badge-custom {
+    padding: 0.5em 0.75em;
+    font-size: 0.875rem;
+}
+
+/* フォーム */
+.form-required::after {
+    content: " *";
+    color: #dc3545;
+}
+
+/* リスト項目 */
+.list-group-item-action:hover {
+    background-color: rgba(0, 123, 255, 0.05);
+}
+
+/* アイコン付きボタン */
+.btn i {
+    margin-right: 0.25rem;
+}
+
+/* ローディング表示 */
+.loading {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+}
+
+.loading.show {
+    display: block;
+}
+
+/* レスポンシブテーブル */
+@media (max-width: 768px) {
+    .table-responsive {
+        font-size: 0.875rem;
+    }
+}
+
+/* ナビゲーション月切替 */
+.month-navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.month-navigation .btn-group {
+    gap: 0.5rem;
+}
+
+/* 集計テーブル */
+.aggregation-table th {
+    background-color: #e9ecef;
+}
+
+.aggregation-table .vendor-row {
+    background-color: #f8f9fa;
+    font-weight: bold;
+}
+
+.aggregation-table .menu-row {
+    padding-left: 2rem;
+}
+
+/* 合計行 */
+.total-row {
+    background-color: #fff3cd;
+    font-weight: bold;
+}
+
+/* エラー表示 */
+.field-error {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+/* 選択済みメニュー */
+.selected-menu {
+    background-color: #d1ecf1;
+    border-left: 3px solid #0c5460;
+}
+
+/* ステータスバッジ */
+.status-active {
+    background-color: #28a745;
+}
+
+.status-deleted {
+    background-color: #6c757d;
+}
+
+.status-holiday {
+    background-color: #dc3545;
+}
+
+.status-orderable {
+    background-color: #28a745;
+}
+
+.status-not-orderable {
+    background-color: #6c757d;
+}

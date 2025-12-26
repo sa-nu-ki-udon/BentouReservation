@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>ホーム</title>
+</head>
+<body>
+    <main layout:fragment="content">
+        <div class="container">
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h2 class="mb-3">
+                        <i class="bi bi-house-door me-2"></i>ホーム
+                    </h2>
+                    <p class="lead">弁当予約管理システムへようこそ</p>
+                </div>
+            </div>
+
+            <!-- 主要機能カード -->
+            <div class="row g-4">
+                <!-- 注文管理 -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="bi bi-cart text-primary me-2"></i>注文管理
+                            </h5>
+                            <p class="card-text">
+                                弁当の注文入力・変更・確認ができます。<br>
+                                <small class="text-muted">締切: 当日朝8:30まで</small>
+                            </p>
+                            <a th:href="@{/orders}" class="btn btn-primary">
+                                <i class="bi bi-cart"></i> 注文する
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- カレンダー設定 -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="bi bi-calendar3 text-success me-2"></i>カレンダー設定
+                            </h5>
+                            <p class="card-text">
+                                日付ごとのメニューセットと休日の設定ができます。
+                            </p>
+                            <a th:href="@{/calendar}" class="btn btn-success">
+                                <i class="bi bi-calendar3"></i> カレンダーを開く
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 日次集計 -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="bi bi-bar-chart text-info me-2"></i>日次集計
+                            </h5>
+                            <p class="card-text">
+                                業者別・メニュー別の注文数を集計します。<br>
+                                <small class="text-muted">FAX送信用の印刷機能付き</small>
+                            </p>
+                            <a th:href="@{/daily-aggregation}" class="btn btn-info">
+                                <i class="bi bi-bar-chart"></i> 日次集計を見る
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 月次集計 -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="bi bi-calendar-month text-warning me-2"></i>月次集計
+                            </h5>
+                            <p class="card-text">
+                                社員別・業者別の月次請求額を集計します。
+                            </p>
+                            <a th:href="@{/monthly-billing}" class="btn btn-warning">
+                                <i class="bi bi-calendar-month"></i> 月次集計を見る
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 業者管理 -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="bi bi-building text-secondary me-2"></i>業者管理
+                            </h5>
+                            <p class="card-text">
+                                弁当業者の登録・編集・削除ができます。
+                            </p>
+                            <a th:href="@{/vendors}" class="btn btn-secondary">
+                                <i class="bi bi-building"></i> 業者一覧
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- メニュー管理 -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="bi bi-journal-text text-dark me-2"></i>メニュー管理
+                            </h5>
+                            <p class="card-text">
+                                メニューの登録・編集・価格変更ができます。
+                            </p>
+                            <a th:href="@{/menus}" class="btn btn-dark">
+                                <i class="bi bi-journal-text"></i> メニュー一覧
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- メニューセット管理 -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="bi bi-collection text-primary me-2"></i>メニューセット
+                            </h5>
+                            <p class="card-text">
+                                複数業者のメニューをセットにして管理できます。
+                            </p>
+                            <a th:href="@{/menu-sets}" class="btn btn-primary">
+                                <i class="bi bi-collection"></i> メニューセット一覧
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 社員管理 -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="bi bi-people text-success me-2"></i>社員管理
+                            </h5>
+                            <p class="card-text">
+                                社員情報の登録・編集・削除ができます。
+                            </p>
+                            <a th:href="@{/employees}" class="btn btn-success">
+                                <i class="bi bi-people"></i> 社員一覧
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 締め日設定 -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="bi bi-calendar-check text-danger me-2"></i>締め日設定
+                            </h5>
+                            <p class="card-text">
+                                業者別・個人別の請求締め日を設定します。
+                            </p>
+                            <a th:href="@{/billing-closing-dates}" class="btn btn-danger">
+                                <i class="bi bi-calendar-check"></i> 締め日設定
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- お知らせエリア -->
+            <div class="row mt-5">
+                <div class="col-12">
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="bi bi-info-circle me-2"></i>システムについて
+                            </h5>
+                            <ul class="mb-0">
+                                <li>注文の締切時刻は<strong>毎朝8:30</strong>です</li>
+                                <li>当日8:30までは注文の変更・キャンセルが可能です</li>
+                                <li>休日やメニュー未設定の日は注文できません</li>
+                                <li>日次集計は8:45までに完了し、FAX送信用に印刷できます</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

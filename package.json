@@ -1,0 +1,14 @@
+{
+  "name": "bentou-reservation",
+  "version": "1.0.0",
+  "description": "弁当予約管理システム",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "clean": "rimraf src/main/resources/static/js/*.js"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.0",
+    "rimraf": "^5.0.0"
+  }
+}
